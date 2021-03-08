@@ -24,32 +24,19 @@ class APIClient {
             AF.request(route)
                 .responseDecodable ( decoder: decoder, completionHandler: { (response: AFDataResponse<T>) in
         
-                    let statusCode = response.response?.statusCode
+                    let statusCode = response.response?.statusCode ?? 0
 
                     switch response.result {
                         case .success(let value):
                             switch statusCode {
                                 
-                                case 200:
+                            case 200...204:
                                     completion(.success(value))
                                     break
                                     
-                                ///verificar, pois em alguns casos terá que tomar ações diferentes
-                                case 201:
-                                    completion(.success(value))
-                                    break
-
-                                ///verificar, pois em alguns casos terá que tomar ações diferentes
-                                case 204:
-                                    completion(.success(value))
-                                    break
-
-                                case 400,
-                                     401,
-                                     403,
-                                     404,
-                                     405:
-                                    decoder.decodeError(response: response)
+                            case 400...405:
+                                    let result = decoder.decodeError(response: response)
+                                    Utils.checkError(error: result)
                                     completion(.success(value))
                                     break
                                     
@@ -59,25 +46,9 @@ class APIClient {
                             }
                             
                         case .failure(let error):
-                            switch statusCode {
-                            case 401:
-//                                callRefreshToken()
-                                decoder.decodeError(response: response)
-                                completion(.failure(error))
-                                break
-                            
-                            case 404:
-                                //recurso não encontrado
-                                decoder.decodeError(response: response)
-                                completion(.failure(error))
-//                                Switcher.updateRootVC()
-                                break
-                                
-                            default:
-                                decoder.decodeError(response: response)
-                                completion(.failure(error))
-                                break
-                            }
+                            let result = decoder.decodeError(response: response)
+                            Utils.checkError(error: result)
+                            completion(.failure(error))
                     }
                 })
                 .responseJSON { response in
@@ -90,6 +61,10 @@ class APIClient {
                     }
             }
         })
+    }
+    
+    static func signIn(email: String, password: String) -> Future<TokenResult, Error> {
+        performRequest(route: APIRouter.signIn(email: email, password: password))
     }
     
     static func getHighlights() -> Future<HighlightsResult, Error> {

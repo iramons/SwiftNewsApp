@@ -11,6 +11,15 @@ import RxSwift
 
 extension UIViewController {
     
+    var isAlertViewPresenting: Bool {
+         get {
+            if self.presentedViewController is UIAlertController {
+                 return true
+             }
+            return false
+            }
+     }
+    
     class var storyboardID: String {
       return "\(self)"
     }
@@ -36,12 +45,12 @@ extension UIViewController {
     }
     
     //MARK: - Global Alert
-    func alert(title: String = "Ops",
+    func alert(title: String = "Alert",
                    message: String,
                    alertStyle: UIAlertController.Style = .alert,
-                   actionTitles: [String] = ["Entendi"],
+                   actionTitles: [String] = ["OK"],
                    actionStyles: [UIAlertAction.Style] = [.default],
-                   actions: [((UIAlertAction) -> Void)] = [{_ in print("Entendi button clicked!")}])
+                   actions: [((UIAlertAction) -> Void)] = [{_ in print("OK button clicked!")}])
     {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: alertStyle)
         

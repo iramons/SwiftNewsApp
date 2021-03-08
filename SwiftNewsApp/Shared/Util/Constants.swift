@@ -24,6 +24,10 @@ struct Constants {
         static let perPage = "per_page"
         static let publishedAt = "published_at"
     }
+    
+    struct Errors {
+        static let unexpectedError = "Unexpected error"
+    }
 }
 
 enum RequestParams {

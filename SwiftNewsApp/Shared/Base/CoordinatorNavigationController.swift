@@ -78,16 +78,6 @@ class CoordinatorNavigationController: UINavigationController {
         interactivePopGestureRecognizer?.delegate = nil
     }
 
-    private func setupCustomBackButton(viewController: UIViewController) {
-//        if backButtonImage != nil || backButtonTitle != nil {
-//            viewController.navigationItem.hidesBackButton = true
-//            let backButtonTitle = shouldUseViewControllerTitles ? viewControllers[viewControllers.count - 2].title : self.backButtonTitle
-//            let button = CustomBackButton.initCustomBackButton(backButtonImage: backButtonImage, backButtonTitle: backButtonTitle, backButtonfont: backButtonfont, backButtonTitleColor: backButtonTitleColor)
-//            button.addTarget(self, action: #selector(actionBack(sender:)), for: .touchUpInside)
-//            viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: button)
-//        }
-    }
-
     // MARK: - Actions
 
     @objc private func actionBack(sender _: UIBarButtonItem) {
@@ -99,7 +89,6 @@ class CoordinatorNavigationController: UINavigationController {
     override func pushViewController(_ viewController: UIViewController, animated: Bool) {
         duringPushAnimation = true
         super.pushViewController(viewController, animated: animated)
-        setupCustomBackButton(viewController: viewController)
     }
 
     // MARK: - Initialization
@@ -122,7 +111,6 @@ extension CoordinatorNavigationController: UIGestureRecognizerDelegate {
         guard gestureRecognizer == interactivePopGestureRecognizer else {
             return true
         }
-
         return viewControllers.count > 1 && duringPushAnimation == false
     }
 
@@ -152,7 +140,6 @@ extension CoordinatorNavigationController: UINavigationControllerDelegate {
         guard let swipeNavigationController = navigationController as? CoordinatorNavigationController else {
             return
         }
-
         swipeNavigationController.duringPushAnimation = false
     }
 }

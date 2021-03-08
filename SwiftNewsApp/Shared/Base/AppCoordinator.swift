@@ -14,7 +14,7 @@ enum AppChildCoordinator {
 }
 
 final class AppCoordinator: Coordinator {
-    // MARK: - Properties
+
     private let window: UIWindow
     let container: Container
 
@@ -22,31 +22,28 @@ final class AppCoordinator: Coordinator {
     private var navigationController: UINavigationController
     private var childCoordinators = [AppChildCoordinator: Coordinator]()
 
-    // MARK: - Init
     init(window: UIWindow, container: Container, navigationController: UINavigationController, launchInstructor: LaunchInstructor) {
         self.window = window
         self.container = container
         self.navigationController = navigationController
         self.launchInstructor = launchInstructor
-
         self.window.rootViewController = navigationController
     }
 
-    // MARK: - Coordinator
     func start() {
         switch launchInstructor {
-        case .auth: runAuthFlow()
-        case .feed: runFeedFlow()
+            case .auth: runAuthFlow()
+            case .feed: runFeedFlow()
         }
     }
 
-    // MARK: - Private methods
     
+    // MARK: - Private methods
     private func runAuthFlow() {
         let coordinator = AuthCoordinator(container: container, navigationController: navigationController)
         coordinator.finishFlow = { [unowned self] in
             self.childCoordinators[.auth] = nil
-            self.launchInstructor = LaunchInstructor.configure(isAutorized: Helper.app.isUserLoggedIn())
+            self.launchInstructor = LaunchInstructor.configure(isAutorized: UserService.shared.isAuthenticated())
             self.navigationController.viewControllers.removeAll()
             self.start()
         }
@@ -58,7 +55,7 @@ final class AppCoordinator: Coordinator {
         let coordinator = FeedCoordinator(container: container, navigationController: navigationController)
         coordinator.finishFlow = { [unowned self] in
             self.childCoordinators[.feed] = nil
-            self.launchInstructor = LaunchInstructor.configure(isAutorized: Helper.app.isUserLoggedIn())
+            self.launchInstructor = LaunchInstructor.configure(isAutorized: UserService.shared.isAuthenticated())
             self.navigationController.viewControllers.removeAll()
             self.start()
         }

@@ -22,7 +22,7 @@ final class UserService {
 
     private var user: User?
 
-    func isAuthonticated() -> Bool {
+    func isAuthenticated() -> Bool {
         if loadToken() != nil {
             return true
         } else {

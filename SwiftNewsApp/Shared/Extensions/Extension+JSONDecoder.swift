@@ -10,14 +10,14 @@ import Alamofire
 
 extension JSONDecoder {
     
-    func decodeError<T:Decodable>(response: AFDataResponse<T>) -> String {
+    func decodeError<T:Decodable>(response: AFDataResponse<T>) -> ErrorResult {
         let decoder = JSONDecoder()
-        var message = ""
+        var errorResult: ErrorResult?
         if let jsonData = response.data {
             let result = try! decoder.decode(ErrorResult.self, from: jsonData)
-            message = result.message ?? "Algo deu errado!"
+            errorResult = result
         }
-        return message
+        return errorResult ?? ErrorResult(code: "", message: "")
     }
     
 }

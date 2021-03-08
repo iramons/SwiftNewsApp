@@ -10,7 +10,7 @@ import Alamofire
 
 enum APIRouter: APIConfiguration {
 
-    case signin(email: String, password: String)
+    case signIn(email: String, password: String)
     case getHighlights
     case getNews(currentPage: Int, perPage: Int, publishedAt: String)
 
@@ -18,7 +18,7 @@ enum APIRouter: APIConfiguration {
     var method: HTTPMethod {
         switch self {
             
-        case .signin:
+        case .signIn:
             return .post
             
         case .getHighlights,
@@ -31,7 +31,7 @@ enum APIRouter: APIConfiguration {
     var path: String {
         switch self {
         
-        case .signin:
+        case .signIn:
             return "/v1/client/auth/signin"
 
         case .getHighlights:
@@ -46,7 +46,7 @@ enum APIRouter: APIConfiguration {
     var parameters: RequestParams {
         switch self {
         
-        case .signin(let email, let password):
+        case .signIn(let email, let password):
         return .body([Constants.APIParamKeys.email: email,
                       Constants.APIParamKeys.password: password])
         
@@ -63,7 +63,10 @@ enum APIRouter: APIConfiguration {
     
     // MARK: - URLRequestConvertible
     func asURLRequest() throws -> URLRequest {
-                
+        
+//        let accessToken = UserService.shared.loadToken()
+        let accessToken = Helper.app.getAccessToken()
+
         let url = try APIEnvironment.Production.baseURL.asURL()
     
         var urlRequest = URLRequest(url: url.appendingPathComponent(path))
@@ -73,8 +76,8 @@ enum APIRouter: APIConfiguration {
         /// HTTP Method
         urlRequest.httpMethod = method.rawValue
         
-        let accessToken = "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6NTQxLCJlbWFpbCI6InRlYnJhbS5kZXZAZ21haWwuY29tIn0.FtrbPE6ebeubFDV4ocuI5T3VmgQbzSuledKAUFhZLNE"
-//        let accessToken = Helper.app.getAccessToken()
+//        let accessToken = "eyJhbGciOiJIUzI1NiJ9.eyJpZCI6NTQxLCJlbWFpbCI6InRlYnJhbS5kZXZAZ21haWwuY29tIn0.FtrbPE6ebeubFDV4ocuI5T3VmgQbzSuledKAUFhZLNE"
+        
 
         /// Common Headers
         urlRequest.setValue(ContentType.json.rawValue, forHTTPHeaderField: HTTPHeaderField.acceptType.rawValue)

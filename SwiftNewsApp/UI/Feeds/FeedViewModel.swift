@@ -43,44 +43,41 @@ final class FeedViewModel: ObservableObject {
         return isLogout.asObservable().distinctUntilChanged()
     }
     
+    let loading = BehaviorRelay<Bool>(value: false)
+    let success = BehaviorRelay<Bool>(value: false)
+    let errorMessage = BehaviorRelay<String>(value: Constants.Errors.unexpectedError)
+    
+    
     func fetchHighlightsData() {
+        self.loading.accept(true)
         dataManager.initFetchHighlights() { [weak self] result in
-//            self?.isLoading = false
             switch result {
+            
             case .success(let list):
                 self?.highlights.accept(list.data ?? [])
+                self?.loading.accept(false)
+                
             case .failure(let error):
                 print("error == \(error)")
-//                self?.processError(error: error)
+                self?.loading.accept(false)
             }
         }
     }
     
     func fetchNewsData(currentPage: Int, perPage:Int, publishedAt: String) {
+        self.loading.accept(true)
         dataManager.initFetchNews(currentPage: currentPage, perPage: perPage, publishedAt: publishedAt){ [weak self] result in
-//            self?.isLoading = false
+            
             switch result {
+            
             case .success(let list):
                 self?.news.accept(list.data ?? [])
+                self?.loading.accept(false)
+                
             case .failure(let error):
                 print("error == \(error)")
-//                self?.processError(error: error)
+                self?.loading.accept(false)
             }
-        }
-    }
-    
-    enum UserAlert:  String, Error {
-        case userError = "Please make sure your network is working fine or re-launch the app"
-        case serverError = "Please wait a while and re-launch the app"
-    }
-    
-    private func processError(error:APIError) {
-        switch error {
-        case .clientError:
-            self.alertMessage = UserAlert.userError.rawValue
-            
-        case .serverError,.noData,.dataDecodingError:
-            self.alertMessage = UserAlert.serverError.rawValue
         }
     }
     

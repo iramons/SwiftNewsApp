@@ -8,9 +8,13 @@
 import Foundation
 import Reachability
 import UIKit
+import RxSwift
+import RxCocoa
 
 class BaseTableViewController: UITableViewController, CoordinatorNavigationControllerDelegate {
+    
     var isConnectedToInternet: Bool = false
+    let bag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()

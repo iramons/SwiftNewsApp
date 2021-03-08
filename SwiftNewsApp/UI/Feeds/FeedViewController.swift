@@ -8,28 +8,35 @@
 import UIKit
 import SwifterSwift
 import SafariServices
-
+import RxCocoa
+import RxSwift
 
 protocol FeedViewControllerProtocol: AnyObject {
-    // var onBack: (() -> Void)? { get set }
+    var onBack: (() -> Void)? { get set }
     var onSignOut: (() -> Void)? { get set }
-//    var onBookSelected: ((BookDetailVM) -> Void)? { get set }
+    var onSignIn: (() -> Void)? { get set }
+//    var onFeedSelected: ((BookDetailVM) -> Void)? { get set }
 }
 
 class FeedViewController: BaseViewController,
                           BaseViewControllerProtocol,
-                          FeedViewControllerProtocol {
+                          FeedViewControllerProtocol,
+                          FeedStoryboardLodable {
     
     @IBOutlet weak var collectionViewHighlights: UICollectionView!
     @IBOutlet weak var tableViewNews: UITableView!
     @IBOutlet weak var pageControl: UIPageControl!
 
+    private let refreshControl = UIRefreshControl()
+
     var viewModel: FeedViewModel!
     let first = 1
     var timer = Timer()
     var counter = 0
-    				
+    		
+    var onBack: (() -> Void)?
     var onSignOut: (() -> Void)?
+    var onSignIn: (() -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,22 +55,6 @@ class FeedViewController: BaseViewController,
     }
         
     func bindUI() {
-        
-        viewModel
-            .onLogout
-            .map { [weak self] isLoggedOut in
-
-                guard let self = self else {
-                    return
-                }
-
-                if isLoggedOut {
-                    self.onSignOut?()
-                }
-            }
-            .subscribe()
-            .disposed(by: bag)
-        
         observeErrors()
         observeLoading()
         bindCollectionView()
@@ -71,10 +62,23 @@ class FeedViewController: BaseViewController,
         fetchData()
     }
     
+    private func observeLoading() {
+        viewModel.loading
+            .throttle(.milliseconds(300), scheduler: MainScheduler.instance)
+            .distinctUntilChanged()
+            .subscribe({ event in
+                if (event.element == true) {
+                    LoadingView.show()
+                } else {
+                    LoadingView.hide()
+                }
+            }).disposed(by: bag)
+    }
+    
     private func registerNibs() {
         tableViewNews.register(UINib.init(nibName: "NewsCell", bundle: nil),
                                       forCellReuseIdentifier: "NewsCell")
-    
+        
         collectionViewHighlights.register(
             UINib.init(nibName: "HighlightCell", bundle: nil),
             forCellWithReuseIdentifier: "HighlightCell")
@@ -98,10 +102,6 @@ class FeedViewController: BaseViewController,
         return 100
     }
     
-    private func observeLoading() {
-        // TODO: func to show loading
-    }
-    
     private func observeErrors() {
         viewModel.showAlertClosure = { [weak self] in
             DispatchQueue.main.async {
@@ -113,6 +113,9 @@ class FeedViewController: BaseViewController,
     }
     
     private func bindCollectionView() {
+        /*
+         update the collection when get data
+         */
         viewModel.highlightsObservable
             .skip(first)
             .bind(to: collectionViewHighlights
@@ -121,17 +124,26 @@ class FeedViewController: BaseViewController,
                 self.configureCell(cell: cell, data: data, row: row)
             }.disposed(by: bag)
         
+        /*
+         config the page control after get data
+         */
         viewModel.highlightsObservable
             .skip(first)
             .bind(onNext: { _ in
                 self.configPageControl()
             }).disposed(by: bag)
         
+        /*
+         get the carrousel item click
+         */
         collectionViewHighlights.rx.modelSelected(Highlight.self)
             .subscribe(onNext: { item in
                 self.callWebsite(item: item)
             }).disposed(by: bag)
         
+        /*
+         get the carrousel scroll action
+         */
         collectionViewHighlights.rx.didScroll.subscribe(onNext: { _ in
             let center = CGPoint(x: self.collectionViewHighlights.contentOffset.x +
                                     (self.collectionViewHighlights.frame.width / 2), y: (self.collectionViewHighlights.frame.height / 2))
@@ -198,8 +210,21 @@ class FeedViewController: BaseViewController,
         pageControl.currentPage = counter
     }
     
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        pageControl.currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
+    private func setupRefresher() {
+        refreshControl.tintColor = .lightGray
+        tableViewNews.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(refreshData(_:)), for: .valueChanged)
+    }
+    
+    @objc private func refreshData(_ sender: Any) {
+        fetchData()
+    }
+    
+    private func hideLoading() {
+        LoadingView.hide()
+        if (refreshControl.isRefreshing) {
+            refreshControl.endRefreshing()
+        }
     }
     
     private func configureCell(cell: HighlightCell, data: Highlight, row: Int) {

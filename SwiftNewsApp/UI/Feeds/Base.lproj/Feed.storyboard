@@ -27,7 +27,7 @@
         <!--Feeds-->
         <scene sceneID="ytK-rL-czn">
             <objects>
-                <viewController id="R25-ao-SlG" customClass="FeedViewController" customModule="SwiftNewsApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="FeedViewController" id="R25-ao-SlG" customClass="FeedViewController" customModule="SwiftNewsApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="OF0-Va-RPe">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

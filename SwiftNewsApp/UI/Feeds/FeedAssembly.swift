@@ -1,5 +1,5 @@
 //
-//  AuthAssembly.swift
+//  FeedAssembly.swift
 //  SwiftNewsApp
 //
 //  Created by Mac on 07/03/21.
@@ -8,7 +8,7 @@
 import Foundation
 import Swinject
 
-final class AuthAssembly: Assembly {
+final class FeedAssembly: Assembly {
     func assemble(container: Container) {
 
         container.register(UserService.self, factory: { _ in
@@ -16,13 +16,13 @@ final class AuthAssembly: Assembly {
         }).inObjectScope(ObjectScope.container)
 
         // view model
-        container.register(SignInViewModel.self, factory: { container in
-            SignInViewModel()
+        container.register(FeedViewModel.self, factory: { container in
+            FeedViewModel()
         }).inObjectScope(ObjectScope.container)
 
         // view controllers
-        container.storyboardInitCompleted(SignInViewController.self) { r, c in
-            c.viewModel = r.resolve(SignInViewModel.self)
+        container.storyboardInitCompleted(FeedViewController.self) { r, c in
+            c.viewModel = r.resolve(FeedViewModel.self)
         }
     }
 }

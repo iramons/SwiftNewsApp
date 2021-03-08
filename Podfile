@@ -19,8 +19,8 @@ target 'SwiftNewsApp' do
       pod 'Swinject', '~> 2.7.1'
       pod 'SwinjectAutoregistration', '2.7.0'
       pod 'SwinjectStoryboard', :git => 'https://github.com/Swinject/SwinjectStoryboard.git', :commit => '0ca45c83a8aa398c153d8a036c95abb4343cfa0c'
-
       pod 'SwiftValidator' , :git => 'https://github.com/Sadmansamee/SwiftValidator.git', :branch => 'master'
+      pod 'SVProgressHUD', :git => 'https://github.com/SVProgressHUD/SVProgressHUD.git'
       pod 'SwifterSwift/Foundation'
       pod 'Kingfisher', '~> 6.0'
       pod 'SwiftDate', '~> 5.0'

@@ -8,9 +8,6 @@
 import Swinject
 import UIKit
 
-enum AuthChildCoordinator {
-    case about
-}
 
 final class AuthCoordinator: Coordinator, CoordinatorFinishOutput {
     // MARK: - CoordinatorFinishOutput
@@ -19,11 +16,11 @@ final class AuthCoordinator: Coordinator, CoordinatorFinishOutput {
     // MARK: - Vars & Lets
     let navigationController: UINavigationController
     let container: Container
-    private var childCoordinators = [AuthChildCoordinator: Coordinator]()
+//    private var childCoordinators = [AuthChildCoordinator: Coordinator]()
 
     // MARK: - Coordinator
     func start() {
-        showLoginVC()
+        showSignInViewController()
     }
 
     // MARK: - Init
@@ -32,33 +29,26 @@ final class AuthCoordinator: Coordinator, CoordinatorFinishOutput {
         self.navigationController = navigationController
     }
 
-    // MARK: - Private methods
-    private func showLoginVC() {
-        let vc = container.resolveViewController(SigninViewController.self)
+    private func showSignInViewController() {
+        let vc = container.resolveViewController(SignInViewController.self)
         vc.onBack = { [unowned self] in
             self.navigationController.popVC()
         }
-        vc.onLogin = {
+        vc.onSignIn = {
             self.finishFlow?()
         }
-        vc.onSignUp = {
-            self.showSignUpVC()
-        }
-
         navigationController.pushViewController(vc, animated: true)
     }
-
-    private func showSignUpVC() {
-        let vc = container.resolve(SigninViewController.self)
-        vc?.onBack = { [unowned self] in
+    
+    private func showFeedViewController() {
+        let vc = container.resolveViewController(FeedViewController.self)
+        vc.onBack = { [unowned self] in
             self.navigationController.dismiss(animated: true, completion: nil)
         }
-        vc?.onSignUp = {
+        vc.onSignIn = {
             self.navigationController.dismiss(animated: true, completion: nil)
         }
-//        vc.onSignIn = {
-//            self.navigationController.dismiss(animated: true, completion: nil)
-//        }
-        navigationController.present(vc!, animated: true, completion: nil)
+        navigationController.present(vc, animated: true, completion: nil)
     }
+
 }
